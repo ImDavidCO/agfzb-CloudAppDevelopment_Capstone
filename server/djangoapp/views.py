@@ -24,23 +24,45 @@ def contact_us(request):
     return render(request, 'djangoapp/contact_us.html')
 
 # Create a `login_request` view to handle sign in request
-# def login_request(request):
-#     if request.method == 'POST':
-#         # Handle login logic here
-#     else:
-#         return render(request, 'djangoapp/login.html')
+def login_user(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Welcome back, {username}!")
+                return redirect('djangoapp:index')
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid form submission.")
+    else:
+        form = AuthenticationForm()
+    return render(request, 'djangoapp/login.html', {'form': form})
 
 # Create a `logout_request` view to handle sign out request
-# def logout_request(request):
-#     # Handle logout logic here
-#     return HttpResponseRedirect('/')
+def logout_user(request):
+    logout(request)
+    messages.success(request, "You have been successfully logged out.")
+    return redirect('djangoapp:index')
 
 # Create a `registration_request` view to handle sign up request
-#def registration_request(request):
-   # if request.method == 'POST':
-#         # Handle registration logic here
-#     else:
-#         return render(request, 'djangoapp/registration.html')
+def registration(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f"Welcome, {user.username}! You have been successfully registered.")
+            return redirect('djangoapp:index')
+        else:
+            messages.error(request, "Invalid form submission. Please check the form.")
+    else:
+        form = UserCreationForm()
+    return render(request, 'djangoapp/registration.html', {'form': form})
 
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
