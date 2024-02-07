@@ -16,11 +16,18 @@
     <!-- Bootstrap Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="text" placeholder="Username">
-            <input class="form-control mr-sm-2" type="password" placeholder="Password">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+            {% if user.is_authenticated %}
+                <!-- Mostrar el nombre del usuario y el botón de logout si está autenticado -->
+                <span class="navbar-text mr-2">Welcome, {{ user.username }}!</span>
+                <a class="btn btn-outline-danger my-2 my-sm-0" href="{% url 'djangoapp:logout' %}">Logout</a>
+            {% else %}
+                <!-- Mostrar los campos de login si no está autenticado -->
+                <input class="form-control mr-sm-2" type="text" placeholder="Username" name="username">
+                <input class="form-control mr-sm-2" type="password" placeholder="Password" name="password">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+                <a class="nav-link" href="{% url 'djangoapp:registration' %}">Signup</a>
+            {% endif %}
         </form>
-        <a class="nav-link" href="{% url 'djangoapp:registration' %}">Signup</a>
         <a class="navbar-brand" href="#">Dealership Review</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

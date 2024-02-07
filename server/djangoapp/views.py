@@ -1,3 +1,4 @@
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
@@ -28,28 +29,21 @@ def login_user(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.success(request, f"Welcome back, {username}!")
-                return redirect('djangoapp:index')
-            else:
-                messages.error(request, "Invalid username or password.")
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, f"Welcome back, {user.username}!")
+            return redirect('djangoapp:index')
         else:
-            messages.error(request, "Invalid form submission.")
+            messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
     return render(request, 'djangoapp/login.html', {'form': form})
 
-# Create a `logout_request` view to handle sign out request
 def logout_user(request):
     logout(request)
     messages.success(request, "You have been successfully logged out.")
     return redirect('djangoapp:index')
 
-# Create a `registration_request` view to handle sign up request
 def registration(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
