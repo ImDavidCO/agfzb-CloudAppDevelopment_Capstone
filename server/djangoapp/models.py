@@ -1,27 +1,35 @@
 from django.db import models
-from django.utils.timezone import now
+from django.utils import timezone
 
 
-# Create your models here.
+class CarMake(models.Model):
+    # Campos del modelo CarMake
+    name = models.CharField(max_length=100)
+    description = models.TextField()
 
-# <HINT> Create a Car Make model `class CarMake(models.Model)`:
-# - Name
-# - Description
-# - Any other fields you would like to include in car make model
-# - __str__ method to print a car make object
+    # Otros campos que desees agregar
 
-
-# <HINT> Create a Car Model model `class CarModel(models.Model):`:
-# - Many-To-One relationship to Car Make model (One Car Make has many Car Models, using ForeignKey field)
-# - Name
-# - Dealer id, used to refer a dealer created in cloudant database
-# - Type (CharField with a choices argument to provide limited choices such as Sedan, SUV, WAGON, etc.)
-# - Year (DateField)
-# - Any other fields you would like to include in car model
-# - __str__ method to print a car make object
+    def __str__(self):
+        return self.name
 
 
-# <HINT> Create a plain Python class `CarDealer` to hold dealer data
+class CarModel(models.Model):
+    # Relación Many-To-One con CarMake
+    car_make = models.ForeignKey(CarMake, on_delete=models.CASCADE)
 
+    # Otros campos del modelo CarModel
+    dealer_id = models.IntegerField()  # Ajusta esto según tu lógica de negocio
+    name = models.CharField(max_length=100)
+    CAR_TYPES = [
+        ('Sedan', 'Sedan'),
+        ('SUV', 'SUV'),
+        ('WAGON', 'WAGON'),
+        # Agrega más opciones según sea necesario
+    ]
+    type = models.CharField(max_length=10, choices=CAR_TYPES)
+    year = models.DateField(default=timezone.now)
 
-# <HINT> Create a plain Python class `DealerReview` to hold review data
+    # Otros campos que desees agregar
+
+    def __str__(self):
+        return f"{self.name} ({self.car_make.name})"
