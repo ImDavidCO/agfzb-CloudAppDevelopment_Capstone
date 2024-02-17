@@ -1,15 +1,15 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
-# from .restapis import related methods
+from .models import CarDealer, DealerReview
+from .restapis import get_dealer_reviews_from_cf, get_dealers_from_cf
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
 import logging
 import json
+
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -60,14 +60,27 @@ def registration(request):
 
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
+    if request.method == "GET":
+        url = "https://iprogramco-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        # Get dealers from the URL
+        dealerships = get_dealers_from_cf(url)
+        # Concat all dealer's short name
+        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        # Return a list of dealer short name
+        return HttpResponse(dealer_names)
+        # Create a `get_dealer_details` view to render the reviews of a dealer
+def get_dealer_details(request, dealer_id):
     context = {}
     if request.method == "GET":
-        return render(request, 'djangoapp/index.html', context)
-
-# Create a `get_dealer_details` view to render the reviews of a dealer
-# def get_dealer_details(request, dealer_id):
-#     # Fetch dealer details and render reviews page
-#     return render(request, 'djangoapp/dealer_details.html', context)
+        print("dealerid:", dealer_id)
+        url = "https://iprogramco-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"  # Replace with your actual URL
+        # Get reviews by dealer id
+        reviews = get_dealer_reviews_from_cf(url, dealer_id)
+        context["reviews"] = reviews
+        print("Dealer:", dealer_id)
+        print("Reviews:", reviews)
+        # Return HttpResponse with the reviews as context
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create an `add_review` view to submit a review
 # def add_review(request, dealer_id):
